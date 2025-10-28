@@ -12,7 +12,7 @@ International Conference on Learning Representation (ICLR), 2025
 🌟 **Oral Presentation (Notable-top-2%)**
 </div>
 
-The official implementation of **Diffusion Planner**, which **represents a pioneering effort in fully harnessing the power of diffusion models for high-performance motion planning, without overly relying on refinement**.
+The official implementation of **Diffusion Planner**, which **represents a pioneering effort in fully harnessing the power of diffusion models for high-performance motion planning, without overly relying on refinement**. Checkout our latest work [**Flow Planner (NeurIPS 2025)**](https://github.com/DiffusionAD/Flow-Planner), a learning-based framework with advanced interactive behavior modeling.
 
 <div style="display: flex; justify-content: center; align-items: center; gap: 2%;">
 
@@ -23,19 +23,6 @@ The official implementation of **Diffusion Planner**, which **represents a pione
   <img src="./assets/gif/multiple_vehicle.gif" width="32%" alt="Video 3">
 
 </div>
-
-## To Do List
-
-The code is under cleaning and will be released gradually.
-
-- [ ] e2e & real world vehicle
-- [ ] delivery vehicle dataset (government approval in progress)
-- [x] guidance tutorial
-- [x] data preprocess
-- [x] training code
-- [x] diffusion planner & checkpoint
-- [x] initial repo & paper
-
 
 ## Table of Contents
 
@@ -159,6 +146,19 @@ chmod +x data_process.sh
 chmod +x torch_run.sh
 ./torch_run.sh
 ```
+
+## To Do List
+
+The code is under cleaning and will be released gradually.
+
+- [ ] e2e & real world vehicle
+- [ ] delivery vehicle dataset (government approval in progress)
+- [x] guidance tutorial
+- [x] data preprocess
+- [x] training code
+- [x] diffusion planner & checkpoint
+- [x] initial repo & paper
+
 
 ## Bibtex
 
