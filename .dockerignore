@@ -1,0 +1,45 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info
+*.egg
+dist
+build
+.eggs
+
+# Model checkpoints (large files)
+checkpoints/
+*.pth
+*.pt
+*.ckpt
+
+# Logs and outputs
+training_log/
+logs/
+*.log
+wandb/
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Jupyter
+.ipynb_checkpoints
+
+# Data (should be mounted, not copied)
+data/
+*.db
+*.parquet
