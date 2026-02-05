@@ -128,20 +128,64 @@ docker tag <ACCOUNT_ID>.dkr.ecr.us-east-1.amazonaws.com/diffusion-planner:latest
 
 ## Step 7: Prepare Data
 
-### Option A: Download nuPlan data to EC2
+### Option A: Download Mini Dataset Locally, Upload to EC2 (Recommended for Testing)
+
+**On your local machine (Mac/Linux):**
+
+```bash
+# 1. Install nuplan-devkit
+pip install nuplan-devkit
+
+# 2. Download mini dataset (~5GB)
+python -c "
+from nuplan.database.nuplan_db_orm.nuplandb import download_nuplan_mini
+download_nuplan_mini('$HOME/data/nuplan')
+"
+
+# 3. Compress for faster upload
+tar -czvf nuplan-mini.tar.gz -C ~/data nuplan
+
+# 4. Upload to EC2
+scp -i your-key.pem nuplan-mini.tar.gz ubuntu@<EC2_IP>:~/
+```
+
+**On EC2:**
+
+```bash
+# 5. Extract data
+cd ~
+tar -xzvf nuplan-mini.tar.gz
+mkdir -p ~/data
+mv nuplan ~/data/
+
+# Verify structure
+ls ~/data/nuplan/
+# Should show: nuplan-v1.1/  maps/
+```
+
+### Option B: Download Full Dataset to EC2
 
 ```bash
 # Create data directory
 mkdir -p ~/data/nuplan
 
-# Download nuPlan dataset (requires nuPlan account)
-# Follow instructions at: https://www.nuscenes.org/nuplan
+# Register at https://www.nuscenes.org/nuplan (free)
+# Download using nuplan-devkit
+pip install nuplan-devkit
+python -c "
+from nuplan.database.nuplan_db_orm.nuplandb import download_nuplan
+download_nuplan('/home/ubuntu/data/nuplan', version='v1.1')
+"
+```
 
-# Or sync from S3 if you have data there:
+### Option C: Sync from S3
+
+```bash
+# If you have data in S3
 aws s3 sync s3://your-bucket/nuplan ~/data/nuplan
 ```
 
-### Option B: Mount S3 bucket (recommended for large datasets)
+### Option D: Mount S3 Bucket (for large datasets)
 
 ```bash
 # Install s3fs
@@ -158,13 +202,27 @@ s3fs your-nuplan-bucket ~/data/nuplan -o passwd_file=~/.passwd-s3fs
 
 ### Preprocess Data
 
+**For mini dataset:**
 ```bash
 docker run --rm --gpus all \
   -v ~/data/nuplan:/data/nuplan \
   -v ~/data/processed:/data/processed \
   diffusion-planner:latest \
   python /opt/diffusion-planner/data_process.py \
-    --data_path /data/nuplan/trainval \
+    --data_path /data/nuplan/nuplan-v1.1/mini \
+    --map_path /data/nuplan/maps \
+    --save_path /data/processed \
+    --total_scenarios 500
+```
+
+**For full dataset:**
+```bash
+docker run --rm --gpus all \
+  -v ~/data/nuplan:/data/nuplan \
+  -v ~/data/processed:/data/processed \
+  diffusion-planner:latest \
+  python /opt/diffusion-planner/data_process.py \
+    --data_path /data/nuplan/nuplan-v1.1/trainval \
     --map_path /data/nuplan/maps \
     --save_path /data/processed
 ```
