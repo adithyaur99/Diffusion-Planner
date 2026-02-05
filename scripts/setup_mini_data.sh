@@ -41,7 +41,7 @@ uv venv .venv-data --python 3.9
 
 echo ""
 echo "Step 2: Installing nuplan-devkit..."
-uv pip install --python .venv-data/bin/python nuplan-devkit
+uv pip install --python .venv-data/bin/python "SQLAlchemy==1.4.27" nuplan-devkit
 
 echo ""
 echo "Step 3: Downloading nuPlan mini dataset..."
