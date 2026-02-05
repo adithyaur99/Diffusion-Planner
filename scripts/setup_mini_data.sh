@@ -1,71 +1,95 @@
 #!/bin/bash
 # =============================================================================
-# Download nuPlan Mini Dataset using uv
+# nuPlan Mini Dataset Setup Guide
 # =============================================================================
 #
-# Usage:
-#   ./scripts/setup_mini_data.sh
-#   ./scripts/setup_mini_data.sh --data-dir ~/my-data
-#
-# Prerequisites:
-#   - uv installed (curl -LsSf https://astral.sh/uv/install.sh | sh)
-#   - nuPlan account (register at https://www.nuscenes.org/nuplan)
+# The nuPlan mini dataset must be downloaded MANUALLY from the website.
+# This script helps with extraction and upload to EC2.
 #
 # =============================================================================
 
 set -e
 
-# Default data directory
 DATA_DIR="${1:-$HOME/data/nuplan}"
 
 echo "============================================="
-echo "nuPlan Mini Dataset Setup (using uv)"
+echo "nuPlan Mini Dataset Setup"
 echo "============================================="
-echo "Data directory: $DATA_DIR"
+echo ""
+echo "STEP 1: Download from website (manual)"
+echo "---------------------------------------"
+echo "1. Go to: https://www.nuscenes.org/nuplan#download"
+echo "2. Sign in or register (free)"
+echo "3. Download:"
+echo "   - nuplan-v1.1_mini.zip (scenarios)"
+echo "   - nuplan-maps-v1.1.zip (maps)"
+echo ""
+echo "STEP 2: Extract files"
+echo "---------------------------------------"
+echo "Run these commands after downloading:"
+echo ""
+echo "  mkdir -p $DATA_DIR"
+echo "  unzip ~/Downloads/nuplan-v1.1_mini.zip -d $DATA_DIR/"
+echo "  unzip ~/Downloads/nuplan-maps-v1.1.zip -d $DATA_DIR/"
+echo ""
+echo "STEP 3: Verify structure"
+echo "---------------------------------------"
+echo "Your data directory should look like:"
+echo ""
+echo "  $DATA_DIR/"
+echo "  ├── nuplan-v1.1/"
+echo "  │   └── mini/"
+echo "  │       └── *.db"
+echo "  └── maps/"
+echo "      └── *.json"
+echo ""
+echo "STEP 4: Compress for EC2 upload"
+echo "---------------------------------------"
+echo ""
+echo "  tar -czvf nuplan-mini.tar.gz -C ~/data nuplan"
+echo ""
+echo "STEP 5: Upload to EC2"
+echo "---------------------------------------"
+echo ""
+echo "  scp -i your-key.pem nuplan-mini.tar.gz ubuntu@<EC2_IP>:~/"
+echo ""
+echo "============================================="
 echo ""
 
-# Check if uv is installed
-if ! command -v uv &> /dev/null; then
-    echo "Installing uv..."
-    curl -LsSf https://astral.sh/uv/install.sh | sh
-    source $HOME/.cargo/env 2>/dev/null || export PATH="$HOME/.local/bin:$PATH"
+# If data already exists, show what's there
+if [ -d "$DATA_DIR" ]; then
+    echo "Current contents of $DATA_DIR:"
+    ls -la "$DATA_DIR" 2>/dev/null || echo "(empty)"
+    echo ""
 fi
 
-echo "uv version: $(uv --version)"
+# Interactive mode - ask if user wants to proceed with extraction
+read -p "Have you downloaded the files? (y/n): " -n 1 -r
 echo ""
 
-# Create virtual environment and install nuplan-devkit
-echo "Step 1: Creating virtual environment..."
-cd "$(dirname "$0")/.."
-uv venv .venv-data --python 3.9
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo ""
+    echo "Looking for downloaded files..."
 
-echo ""
-echo "Step 2: Installing nuplan-devkit and dependencies..."
-uv pip install --python .venv-data/bin/python -r requirements_nuplan.txt
+    DOWNLOADS=~/Downloads
 
-echo ""
-echo "Step 3: Downloading nuPlan mini dataset..."
-echo "This will download ~5GB of data to: $DATA_DIR"
-echo ""
+    if [ -f "$DOWNLOADS/nuplan-v1.1_mini.zip" ]; then
+        echo "Found: nuplan-v1.1_mini.zip"
+        mkdir -p "$DATA_DIR"
+        unzip -o "$DOWNLOADS/nuplan-v1.1_mini.zip" -d "$DATA_DIR/"
+    else
+        echo "Not found: $DOWNLOADS/nuplan-v1.1_mini.zip"
+    fi
 
-.venv-data/bin/python -c "
-from nuplan.database.nuplan_db_orm.nuplandb import download_nuplan_mini
-download_nuplan_mini('$DATA_DIR')
-print('Download complete!')
-"
+    if [ -f "$DOWNLOADS/nuplan-maps-v1.1.zip" ]; then
+        echo "Found: nuplan-maps-v1.1.zip"
+        mkdir -p "$DATA_DIR"
+        unzip -o "$DOWNLOADS/nuplan-maps-v1.1.zip" -d "$DATA_DIR/"
+    else
+        echo "Not found: $DOWNLOADS/nuplan-maps-v1.1.zip"
+    fi
 
-echo ""
-echo "Step 4: Verifying download..."
-echo ""
-echo "Directory structure:"
-find "$DATA_DIR" -maxdepth 3 -type d | head -20
-
-echo ""
-echo "============================================="
-echo "SUCCESS! Mini dataset downloaded to:"
-echo "  $DATA_DIR"
-echo ""
-echo "Next steps:"
-echo "  1. Compress: tar -czvf nuplan-mini.tar.gz -C ~/data nuplan"
-echo "  2. Upload:   scp -i key.pem nuplan-mini.tar.gz ubuntu@<EC2_IP>:~/"
-echo "============================================="
+    echo ""
+    echo "Done! Contents of $DATA_DIR:"
+    ls -la "$DATA_DIR" 2>/dev/null
+fi
