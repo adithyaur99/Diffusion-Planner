@@ -1,0 +1,34 @@
+# nuplan-devkit dependencies (pinned versions)
+SQLAlchemy==1.4.27
+numpy==1.23.4
+pandas>=1.3.0
+scipy>=1.7.0
+geopandas>=0.12.1
+Shapely>=2.0.0
+pyogrio
+rtree
+Fiona
+rasterio
+pyquaternion>=0.9.5
+casadi
+control==0.9.1
+sympy
+hydra-core==1.1.0rc1
+omegaconf==2.1.1
+bokeh==2.4.3
+joblib
+psutil
+tqdm
+opencv-python
+Pillow
+matplotlib
+aioboto3
+aiofiles
+boto3
+cachetools
+retry
+selenium
+pyarrow
+
+# nuplan-devkit
+nuplan-devkit
